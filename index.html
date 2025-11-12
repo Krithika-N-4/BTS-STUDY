@@ -476,14 +476,22 @@
                 const lastVisitDate = stats.lastVisit ? new Date(stats.lastVisit).toDateString() : null;
 
                 if (lastVisitDate !== today) {
-                    const yesterday = new Date(Date.now() - 86400000).toDateString();
-                    if (lastVisitDate === yesterday) {
-                        stats.streak++;
-                    } else if (lastVisitDate !== null) {
-                        stats.streak = 1;
-                    }
-                    stats.lastVisit = new Date().toISOString();
-                }
+                    const yesterday = new Date(Date.now() - 86400000).toDateString();
+                    if (lastVisitDate === yesterday) {
+                        stats.streak++;
+                    } else if (lastVisitDate !== null) {
+                        stats.streak = 1;
+                    }
+                    
+                    // --- NEW RESET CODE ---
+                    stats.sessions = 0;
+                    stats.studySeconds = 0;
+                    stats.goals = 0;
+                    localStorage.removeItem('tasks'); // Clears yesterday's to-do list
+                    // --- END NEW RESET CODE ---
+
+                    stats.lastVisit = new Date().toISOString();
+                }
                 
                 const loadedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
                 stats.goals = loadedTasks.filter(task => task.completed).length;
