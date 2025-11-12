@@ -470,37 +470,40 @@
                 if (loadedStats) {
                     stats = loadedStats;
                 }
-
-                // Handle Streak Logic
+            
                 const today = new Date().toDateString();
                 const lastVisitDate = stats.lastVisit ? new Date(stats.lastVisit).toDateString() : null;
-
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+                // If user opened the site on a new day
                 if (lastVisitDate !== today) {
-                    const yesterday = new Date(Date.now() - 86400000).toDateString();
-                    if (lastVisitDate === yesterday) {
-                        stats.streak++;
-                    } else if (lastVisitDate !== null) {
-                        stats.streak = 1;
-                    }
-                    
-                    // --- NEW RESET CODE ---
+                    // --- Handle streak logic ---
+                    if (lastVisitDate === yesterday) {
+                        stats.streak++;
+                    } else if (lastVisitDate !== null) {
+                        stats.streak = 1;
+                    }
+            
+                    // --- Reset daily stats ---
                     stats.sessions = 0;
                     stats.studySeconds = 0;
                     stats.goals = 0;
-                    localStorage.removeItem('tasks'); // Clears yesterday's to-do list
-                    // --- END NEW RESET CODE ---
+            
+                    // --- Clear yesterday's tasks ---
+                    localStorage.removeItem('tasks');
+                    
+                    // Update visit date
+                    stats.lastVisit = new Date().toISOString();
+                }
 
-                    stats.lastVisit = new Date().toISOString();
-                }
-                
+                // Recalculate goals based on loaded tasks (if any)
                 const loadedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
                 stats.goals = loadedTasks.filter(task => task.completed).length;
-                
+            
                 updateStatsDisplay();
                 saveStats();
             }
 
-            window.onbeforeunload = saveStats;
 
             // --- To-Do List Functions ---
 
